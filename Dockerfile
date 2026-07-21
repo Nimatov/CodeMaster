@@ -40,3 +40,6 @@ RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-avail
 RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
 EXPOSE 80
+
+# Автомиграция базы данных и запуск Apache
+CMD php artisan migrate --force && apache2-foreground
