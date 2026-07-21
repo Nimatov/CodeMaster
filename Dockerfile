@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.0-apache
 
 # Устанавливаем системные зависимости и расширения для базы данных (PostgreSQL)
 RUN apt-get update && apt-get install -y \
@@ -20,7 +20,7 @@ RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 # Включаем модуль rewrite для Apache
 RUN a2enmod rewrite
 
-# Копируем файлы проекта (включая готовую папку vendor)
+# Копируем файлы проекта (включая папку vendor)
 WORKDIR /var/www/html
 COPY . .
 
