@@ -27,6 +27,10 @@ COPY . .
 # Создаем .env из примера, если его нет
 RUN [ -f .env ] || cp .env.example .env
 
+# Очищаем кэш конфигурации и приложения, чтобы подтянулись переменные с Render
+RUN php artisan config:clear
+RUN php artisan cache:clear
+
 # Даем права на папки хранения и кэша Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
