@@ -24,8 +24,16 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 COPY . .
 
+# Создаем .env из примера, если его нет
+RUN [ -f .env ] || cp .env.example .env
+
 # Даем права на папки хранения и кэша Laravel
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Генерируем ключ и очищаем кэш
+RUN php artisan key:generate
+RUN php artisan config:clear
 
 # Меняем стандартный корень Apache на папку public проекта Laravel
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
