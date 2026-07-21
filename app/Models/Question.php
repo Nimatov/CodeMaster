@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Question extends Model
+{
+    protected $fillable = [
+        'subject',
+        'question',
+        'options',
+        'correct'
+    ];
+
+    protected $casts = [
+        'options' => 'array',
+    ];
+}
