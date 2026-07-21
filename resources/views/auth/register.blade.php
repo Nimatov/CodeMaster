@@ -385,7 +385,7 @@
             <div class="title">@lang('messages.create_account')</div>
             <div class="description">@lang('messages.register_description')</div>
 
-            <form method="POST" action="{{ route('register') }}">
+            <form method="POST" action="{{ secure_url('register') }}">
                 @csrf
 
                 <!-- ===== ИМЯ ПОЛЬЗОВАТЕЛЯ ===== -->
