@@ -34,7 +34,7 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Устанавливаем зависимости через composer
-RUN composer install --no-dev --optimize-autoloader
+# Принудительно обновляем зависимости и игнорируем конфликты версий локального lock-файла
+RUN composer update --no-dev --optimize-autoloader --no-interaction
 
 EXPOSE 80
