@@ -1,7 +1,7 @@
 services:
   - type: web
     name: mastercoding
-    env: php
+    runtime: node
     buildCommand: composer install --no-dev --optimize-autoloader
     startCommand: php -S 0.0.0.0:$PORT -t public
     envVars:
