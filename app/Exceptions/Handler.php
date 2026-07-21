@@ -36,6 +36,8 @@ class Handler extends ExceptionHandler
      */
     public function report(Throwable $exception)
     {
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+        
         parent::report($exception);
     }
 
