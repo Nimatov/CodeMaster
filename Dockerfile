@@ -20,10 +20,7 @@ RUN docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd
 # Включаем модуль rewrite для Apache
 RUN a2enmod rewrite
 
-# Устанавливаем Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Копируем файлы проекта в контейнер
+# Копируем файлы проекта (включая готовую папку vendor)
 WORKDIR /var/www/html
 COPY . .
 
@@ -33,8 +30,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Меняем стандартный корень Apache на папку public проекта Laravel
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Принудительно обновляем зависимости и игнорируем конфликты версий локального lock-файла
-RUN composer update --no-dev --optimize-autoloader --no-interaction
 
 EXPOSE 80
