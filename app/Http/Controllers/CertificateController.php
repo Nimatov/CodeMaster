@@ -19,7 +19,6 @@ class CertificateController extends Controller
         $score = $result->score_percentage ?? 0;
         $type = $score >= 60 ? 'pass' : 'fail';
 
-        // Проверяем шаблон с расширением .jpg
         $templatePath = public_path("images/certificates/{$type}_{$language}.jpg");
 
         if (!file_exists($templatePath)) {
@@ -40,17 +39,17 @@ class CertificateController extends Controller
         $fontSize = 75;
 
         // ============================================================
-        // ИМЯ ПОЛЬЗОВАТЕЛЯ
+        // ИМЯ ПОЛЬЗОВАТЕЛЯ (с поддержкой кириллицы UTF-8)
         // ============================================================
         $userName = $result->user->full_name ?? $result->user->name;
-        $name = strtoupper($userName);
+        $name = mb_strtoupper($userName, 'UTF-8');
 
         // ============================================================
-        // НАДЕЖНОЕ ПОДКЛЮЧЕНИЕ ШРИФТА ДЛЯ КИРИЛЛИЦЫ
+        // НАДЕЖНОЕ ПОДКЛЮЧЕНИЕ ШРИФТА ЧЕРЕЗ REALPATH
         // ============================================================
-        $fontPath = public_path('fonts/arialmt.ttf');
-        if (!file_exists($fontPath)) {
-            $fontPath = base_path('public/fonts/arialmt.ttf');
+        $fontPath = realpath(public_path('fonts/arialmt.ttf'));
+        if (!$fontPath) {
+            $fontPath = realpath(base_path('public/fonts/arialmt.ttf'));
         }
 
         try {
@@ -60,12 +59,12 @@ class CertificateController extends Controller
                 $font->align('center');
                 $font->valign('top');
                 
-                if (file_exists($fontPath)) {
+                if ($fontPath && file_exists($fontPath)) {
                     $font->file($fontPath);
                 }
             });
         } catch (\Exception $e) {
-            Log::error('Certificate Font Error: ' . $e->getMessage());
+            Log::error('Certificate Error: ' . $e->getMessage());
             $img->text($name, $x, $y, function ($font) use ($fontSize) {
                 $font->size($fontSize);
                 $font->color('#1a237e');
@@ -127,7 +126,7 @@ class CertificateController extends Controller
         });
 
         $userName = $result->user->full_name ?? $result->user->name;
-        $name = strtoupper($userName);
+        $name = mb_strtoupper($userName, 'UTF-8');
         $img->text($name, 600, 380, function ($f) {
             $f->size(75);
             $f->color('#1a237e');
