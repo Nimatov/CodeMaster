@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\TestResult;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Log;
 
 class CertificateController extends Controller
 {
@@ -18,7 +19,7 @@ class CertificateController extends Controller
         $score = $result->score_percentage ?? 0;
         $type = $score >= 60 ? 'pass' : 'fail';
 
-        // Исправлено расширение на .jpg
+        // Проверяем шаблон с расширением .jpg
         $templatePath = public_path("images/certificates/{$type}_{$language}.jpg");
 
         if (!file_exists($templatePath)) {
@@ -45,9 +46,12 @@ class CertificateController extends Controller
         $name = strtoupper($userName);
 
         // ============================================================
-        // ДОБАВЛЯЕМ ТЕКСТ С ПОДДЕРЖКОЙ КИРИЛЛИЦЫ (Используем arialmt)
+        // НАДЕЖНОЕ ПОДКЛЮЧЕНИЕ ШРИФТА ДЛЯ КИРИЛЛИЦЫ
         // ============================================================
         $fontPath = public_path('fonts/arialmt.ttf');
+        if (!file_exists($fontPath)) {
+            $fontPath = base_path('public/fonts/arialmt.ttf');
+        }
 
         try {
             $img->text($name, $x, $y, function ($font) use ($fontSize, $fontPath) {
@@ -55,11 +59,13 @@ class CertificateController extends Controller
                 $font->color('#1a237e');
                 $font->align('center');
                 $font->valign('top');
+                
                 if (file_exists($fontPath)) {
                     $font->file($fontPath);
                 }
             });
         } catch (\Exception $e) {
+            Log::error('Certificate Font Error: ' . $e->getMessage());
             $img->text($name, $x, $y, function ($font) use ($fontSize) {
                 $font->size($fontSize);
                 $font->color('#1a237e');
