@@ -89,18 +89,18 @@ class CertificateController extends Controller
         ]);
     }
 
-    public function download($resultId)
-    {
-        $result = TestResult::findOrFail($resultId);
-        $this->cleanOldCertificates($resultId);
-        $path = $this->generate($resultId);
+    // public function download($resultId)
+    // {
+    //     $result = TestResult::findOrFail($resultId);
+    //     $this->cleanOldCertificates($resultId);
+    //     $path = $this->generate($resultId);
         
-        return response()->download($path, 'certificate.png', [
-            'Cache-Control' => 'no-cache, no-store, must-revalidate',
-            'Pragma' => 'no-cache',
-            'Expires' => '0',
-        ]);
-    }
+    //     return response()->download($path, 'certificate.png', [
+    //         'Cache-Control' => 'no-cache, no-store, must-revalidate',
+    //         'Pragma' => 'no-cache',
+    //         'Expires' => '0',
+    //     ]);
+    // }
 
     private function generateFallback($result, $language, $type)
     {
