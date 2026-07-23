@@ -13,7 +13,10 @@ class CertificateController extends Controller
         $result = TestResult::with('user')->findOrFail($resultId);
 
         $language = app()->getLocale();
-        $type = $result->score_percentage >= 60 ? 'pass' : 'fail';
+        
+        // Жесткая проверка: если процент больше или равен 60 — 'pass' (успех), иначе — 'fail' (неуспех)
+        $score = $result->score_percentage ?? 0;
+        $type = $score >= 60 ? 'pass' : 'fail';
 
         $templatePath = public_path("images/certificates/{$type}_{$language}.png");
 
@@ -35,7 +38,7 @@ class CertificateController extends Controller
         $fontSize = 75;
 
         // ============================================================
-        // ИМЯ ПОЛЬЗОВАТЕЛЯ
+        // ИМЯ ПОЛЬЗОВАТЕЛЯ (Используем полное имя зарегистрировавшегося)
         // ============================================================
         $userName = $result->user->full_name ?? $result->user->name;
         $name = strtoupper($userName);
