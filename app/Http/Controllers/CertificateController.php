@@ -18,10 +18,11 @@ class CertificateController extends Controller
         $score = $result->score_percentage ?? 0;
         $type = $score >= 60 ? 'pass' : 'fail';
 
-        $templatePath = public_path("images/certificates/{$type}_{$language}.png");
+        // Исправлено расширение на .jpg
+        $templatePath = public_path("images/certificates/{$type}_{$language}.jpg");
 
         if (!file_exists($templatePath)) {
-            $templatePath = public_path("images/certificates/{$type}_en.png");
+            $templatePath = public_path("images/certificates/{$type}_en.jpg");
         }
 
         if (!file_exists($templatePath)) {
