@@ -14,7 +14,7 @@ class CertificateController extends Controller
 
         $language = app()->getLocale();
         
-        // Жесткая проверка: если процент больше или равен 60 — 'pass' (успех), иначе — 'fail' (неуспех)
+        // Порог 60%: если больше или равно 60 — 'pass', иначе — 'fail'
         $score = $result->score_percentage ?? 0;
         $type = $score >= 60 ? 'pass' : 'fail';
 
@@ -31,32 +31,34 @@ class CertificateController extends Controller
         $img = Image::make($templatePath);
 
         // ============================================================
-        // ТВОИ КООРДИНАТЫ (МОЖЕШЬ МЕНЯТЬ ЗДЕСЬ)
+        // КООРДИНАТЫ И РАЗМЕР ИМЕНИ НА СЕРТИФИКАТЕ
         // ============================================================
         $x = 500;
         $y = 165;
         $fontSize = 75;
 
         // ============================================================
-        // ИМЯ ПОЛЬЗОВАТЕЛЯ (Используем полное имя зарегистрировавшегося)
+        // ИМЯ ПОЛЬЗОВАТЕЛЯ
         // ============================================================
         $userName = $result->user->full_name ?? $result->user->name;
         $name = strtoupper($userName);
 
         // ============================================================
-        // ДОБАВЛЯЕМ ИМЯ БЕЗ ШРИФТА (используем стандартный)
+        // ДОБАВЛЯЕМ ТЕКСТ С ПОДДЕРЖКОЙ КИРИЛЛИЦЫ (Используем arialmt)
         // ============================================================
+        $fontPath = public_path('fonts/arialmt.ttf');
+
         try {
-            $img->text($name, $x, $y, function ($font) use ($fontSize) {
+            $img->text($name, $x, $y, function ($font) use ($fontSize, $fontPath) {
                 $font->size($fontSize);
                 $font->color('#1a237e');
                 $font->align('center');
                 $font->valign('top');
-                // Убираем проблемный шрифт
-                // $font->file(public_path('fonts/arial.ttf'));
+                if (file_exists($fontPath)) {
+                    $font->file($fontPath);
+                }
             });
         } catch (\Exception $e) {
-            // Если ошибка - просто рисуем текст без шрифта
             $img->text($name, $x, $y, function ($font) use ($fontSize) {
                 $font->size($fontSize);
                 $font->color('#1a237e');
@@ -71,10 +73,7 @@ class CertificateController extends Controller
     public function show($resultId)
     {
         $result = TestResult::findOrFail($resultId);
-        
-        // Удаляем старые сертификаты перед созданием нового
         $this->cleanOldCertificates($resultId);
-        
         $path = $this->generate($resultId);
         
         return response()->file($path, [
@@ -87,10 +86,7 @@ class CertificateController extends Controller
     public function download($resultId)
     {
         $result = TestResult::findOrFail($resultId);
-        
-        // Удаляем старые сертификаты перед созданием нового
         $this->cleanOldCertificates($resultId);
-        
         $path = $this->generate($resultId);
         
         return response()->download($path, 'certificate.png', [
@@ -181,7 +177,6 @@ class CertificateController extends Controller
             mkdir($path, 0777, true);
         }
 
-        // Удаляем старые сертификаты для этого результата
         $this->cleanOldCertificates($result->id);
 
         $file = 'certificate_' . $result->id . '_' . time() . '.png';
@@ -191,9 +186,6 @@ class CertificateController extends Controller
         return $full;
     }
 
-    /**
-     * Очищает старые сертификаты для указанного результата
-     */
     private function cleanOldCertificates($resultId)
     {
         $path = storage_path('app/public/certificates/');
